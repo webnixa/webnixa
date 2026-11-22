@@ -9,6 +9,9 @@ import { DemosPage } from './pages/DemosPage'
 import { HomePage } from './pages/HomePage'
 import { scrollToSection } from './utils/scroll'
 
+/** Vite `base` is `/webnixa/` on GitHub Pages — required for client-side routes. */
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+
 function HashScroll() {
   const { pathname, hash } = useLocation()
 
@@ -25,7 +28,7 @@ function HashScroll() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename}>
       <SmoothScrollProvider>
         <AmbientBackground />
         <LoadingScreen />

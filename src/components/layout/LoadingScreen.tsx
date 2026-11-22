@@ -17,9 +17,7 @@ export function LoadingScreen() {
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
       transition={{ delay: 1, duration: 0.4 }}
-      onAnimationComplete={() => {
-        if (done) return
-      }}
+      style={{ pointerEvents: 'none' }}
     >
       <motion.div
         className="font-display text-3xl font-bold tracking-tight text-dark"

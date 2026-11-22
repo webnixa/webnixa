@@ -24,6 +24,12 @@
     @apply min-h-screen w-full;
   }
 
+  /* Visible by default if GSAP ScrollTrigger fails to run (e.g. slow CDN load). */
+  .scroll-reveal-safe {
+    opacity: 1;
+    transform: none;
+  }
+
   ::selection {
     background: rgba(108, 25, 255, 0.2);
     color: #17102f;
