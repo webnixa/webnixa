@@ -41,7 +41,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 px-4 pt-4 md:px-6">
+    <header className="fixed left-0 right-0 top-0 z-50 px-4 pt-[max(1rem,env(safe-area-inset-top))] md:px-6">
       <nav
         className="glass-strong glow-purple mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-4 py-3 md:px-6"
         aria-label="Main"
@@ -103,7 +103,7 @@ export function Navbar() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="glass-strong mx-auto mt-2 max-w-6xl rounded-2xl p-4 lg:hidden"
+            className="glass-strong mx-auto mt-2 max-h-[min(70vh,calc(100dvh-6rem))] max-w-6xl overflow-y-auto rounded-2xl p-4 lg:hidden"
           >
             <ul className="flex flex-col gap-1">
               {links.map((link) => (

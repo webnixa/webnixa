@@ -7,7 +7,7 @@ import { ServicesSection } from '../components/services/ServicesSection'
 
 export function HomePage() {
   return (
-  <main>
+  <main className="min-w-0 overflow-x-clip">
       <HeroSection />
       <ServicesSection />
       <ProjectEnquirySection />

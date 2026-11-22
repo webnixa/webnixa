@@ -37,12 +37,12 @@ export function ContactSection() {
             transition={{ duration: 8, repeat: Infinity }}
           />
           <div className="relative rounded-[calc(2rem-1px)] bg-gradient-to-br from-primary/95 via-violet to-primary px-6 py-16 text-center text-white md:px-12 md:py-20">
-            <h2 className="font-display text-3xl font-bold md:text-4xl">Ready to Bring Your Idea to Life?</h2>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">Ready to Bring Your Idea to Life?</h2>
             <p className="mx-auto mt-4 max-w-xl text-base text-white/85 md:text-lg">
               Get in touch today — WhatsApp, email, or Instagram. Share a full brief with our project form.
             </p>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <MagneticButton
                 variant="ghost"
                 className="!border-white/40 !bg-white !text-primary hover:!bg-lavender"

@@ -7,13 +7,13 @@ import { ScrollReveal } from '../components/ui/ScrollReveal'
 
 export function DemosPage() {
   return (
-    <main className="min-h-screen px-4 pb-20 pt-28 md:px-6">
+    <main className="min-h-screen min-w-0 overflow-x-clip px-4 pb-20 pt-28 md:px-6">
       <div className="mx-auto max-w-6xl">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <Link to="/" className="text-sm font-medium text-primary hover:underline">
             ← Back to home
           </Link>
-          <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-dark">
+          <h1 className="mt-4 font-display text-2xl font-bold tracking-tight text-dark sm:text-3xl md:text-4xl">
             Experience Our Solutions Live
           </h1>
           <p className="mt-2 max-w-2xl text-muted">

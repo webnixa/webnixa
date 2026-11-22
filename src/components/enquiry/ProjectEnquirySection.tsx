@@ -10,7 +10,7 @@ import {
   MessageCircle,
   Smartphone,
 } from 'lucide-react'
-import { type ReactNode, useCallback, useMemo, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { WEBNIXA_WHATSAPP_DISPLAY } from '../../lib/contact'
 import { buildMailtoUrl, copyEnquiryAndOpenInstagram, openWhatsApp } from '../../lib/enquiry/handoff'
 import { formatEnquiryMessage } from '../../lib/enquiry/formatEnquiryMessage'
@@ -74,7 +74,13 @@ function Field({
 }
 
 const inputClass =
-  'w-full rounded-2xl border border-lavender bg-white/90 px-4 py-3 text-sm text-dark outline-none transition focus:border-primary/45 focus:shadow-[0_0_0_3px_rgba(108,25,255,0.12)]'
+  'w-full min-w-0 rounded-2xl border border-lavender bg-white/90 px-4 py-3 text-base text-dark outline-none transition focus:border-primary/45 focus:shadow-[0_0_0_3px_rgba(108,25,255,0.12)] sm:text-sm'
+
+const stepNavPrimary =
+  'inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-violet px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:shadow-primary/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary touch-manipulation'
+
+const stepNavGhost =
+  'inline-flex min-h-[44px] items-center justify-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-muted transition hover:text-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 touch-manipulation'
 
 function InstagramIcon({ size = 18 }: { size?: number }) {
   return (
@@ -385,25 +391,65 @@ export function ProjectEnquirySection() {
   const [handoff, setHandoff] = useState<'whatsapp' | 'email' | 'instagram' | null>(null)
   const [waFallbackUrl, setWaFallbackUrl] = useState('')
   const [copyOk, setCopyOk] = useState(false)
+  const stepPanelRef = useRef<HTMLDivElement>(null)
+  const stepTitleRef = useRef<HTMLHeadingElement>(null)
+  const navLockRef = useRef(false)
 
   const progress = ((step + 1) / STEPS.length) * 100
 
   const reviewText = useMemo(() => formatEnquiryMessage(data), [data])
 
+  const releaseNavLock = useCallback(() => {
+    window.setTimeout(() => {
+      navLockRef.current = false
+    }, 400)
+  }, [])
+
+  const selectService = useCallback((id: EnquiryService) => {
+    setData((s) => ({ ...s, service: id }))
+    setErrors((prev) => {
+      if (!prev.service) return prev
+      const next = { ...prev }
+      delete next.service
+      return next
+    })
+  }, [])
+
   const goNext = useCallback(() => {
+    if (navLockRef.current) return
+    navLockRef.current = true
+    releaseNavLock()
+
     let e: FieldErrors = {}
     if (step === 0) e = validateStepService(data.service)
     if (step === 1) e = validateStepCommon(data)
     if (step === 2) e = validateStepServiceFields(data)
     setErrors(e)
-    if (hasErrors(e)) return
+    if (hasErrors(e)) {
+      navLockRef.current = false
+      return
+    }
     setStep((s) => Math.min(s + 1, STEPS.length - 1))
-  }, [data, step])
+  }, [data, releaseNavLock, step])
 
-  const goPrev = () => {
+  const goPrev = useCallback(() => {
+    if (navLockRef.current) return
+    navLockRef.current = true
+    releaseNavLock()
     setErrors({})
     setStep((s) => Math.max(s - 1, 0))
-  }
+  }, [releaseNavLock])
+
+  useEffect(() => {
+    const panel = stepPanelRef.current
+    const title = stepTitleRef.current
+    if (title) {
+      title.focus({ preventScroll: true })
+    }
+    if (panel) {
+      panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    }
+  }, [step])
 
   const submitWhatsApp = async () => {
     const e = { ...validateStepCommon(data), ...validateStepServiceFields(data), ...validateStepService(data.service) }
@@ -446,30 +492,47 @@ export function ProjectEnquirySection() {
 
   return (
     <section id="ideas" className="scroll-mt-24 px-4 py-16 md:px-6 md:py-20">
-      <ScrollReveal>
-        <div className="idea-banner glow-purple mx-auto max-w-6xl overflow-hidden rounded-[2rem] p-6 md:p-10 lg:p-12">
-          <div className="mb-8 max-w-2xl">
-            <h2 className="font-display text-3xl font-bold tracking-tight text-dark md:text-4xl">
+      <div className="idea-banner glow-purple mx-auto w-full min-w-0 max-w-6xl overflow-hidden rounded-3xl p-5 sm:rounded-[2rem] sm:p-6 md:p-10 lg:p-12">
+        <ScrollReveal>
+          <div className="mb-6 max-w-2xl md:mb-8">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-dark sm:text-3xl md:text-4xl">
               Share Your Project With Us
             </h2>
-            <p className="mt-3 text-muted">
+            <p className="mt-3 text-sm text-muted sm:text-base">
               Tell us what you need — we&apos;ll open a ready-to-send enquiry on WhatsApp, email, or Instagram.
             </p>
           </div>
+        </ScrollReveal>
 
-          <div className="mb-8">
-            <div className="mb-2 flex justify-between text-xs font-medium text-muted">
-              {STEPS.map((label, i) => (
-                <span key={label} className={i <= step ? 'text-primary' : ''}>
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-lavender">
-              <motion.div className="h-full bg-gradient-to-r from-primary to-violet" animate={{ width: `${progress}%` }} transition={{ ease: [0.22, 1, 0.36, 1] }} />
-            </div>
+        <p className="sr-only" aria-live="polite" aria-atomic="true">
+          Step {step + 1} of {STEPS.length}: {STEPS[step]}
+        </p>
+
+        <div className="mb-6 md:mb-8">
+          <p className="mb-2 text-center text-xs font-semibold text-primary sm:hidden">
+            Step {step + 1} of {STEPS.length} — {STEPS[step]}
+          </p>
+          <div className="mb-2 hidden justify-between gap-1 text-[11px] font-medium text-muted sm:flex sm:text-xs">
+            {STEPS.map((label, i) => (
+              <span key={label} className={`min-w-0 truncate ${i <= step ? 'text-primary' : ''}`}>
+                {label}
+              </span>
+            ))}
           </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-lavender">
+            <motion.div className="h-full bg-gradient-to-r from-primary to-violet" animate={{ width: `${progress}%` }} transition={{ ease: [0.22, 1, 0.36, 1] }} />
+          </div>
+        </div>
 
+        <motion.h3
+          ref={stepTitleRef}
+          tabIndex={-1}
+          className="mb-4 font-display text-lg font-semibold text-dark outline-none sm:text-xl"
+        >
+          {STEPS[step]}
+        </motion.h3>
+
+        <div ref={stepPanelRef} className="min-h-[min(320px,50vh)]">
           <AnimatePresence mode="wait">
             <motion.div
               key={step}
@@ -481,18 +544,28 @@ export function ProjectEnquirySection() {
               {step === 0 && (
                 <div>
                   <p className="mb-4 text-sm font-semibold text-dark">What would you like us to build for you?</p>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div
+                    className="grid gap-3 sm:grid-cols-2 sm:gap-4"
+                    role="group"
+                    aria-label="Select a service"
+                  >
                     {services.map(({ id, title, desc, icon: Icon }) => {
                       const active = data.service === id
                       return (
                         <button
                           key={id}
                           type="button"
-                          onClick={() => setData((s) => ({ ...s, service: id }))}
-                          className={`card-premium rounded-3xl border p-5 text-left transition duration-300 ${
+                          aria-pressed={active}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            selectService(id)
+                          }}
+                          className={`card-premium enquiry-service-card rounded-3xl border p-4 text-left transition duration-300 touch-manipulation sm:p-5 ${
                             active
                               ? 'border-primary bg-white shadow-[0_0_40px_rgba(108,25,255,0.18)]'
-                              : 'border-white/90 bg-white/80 hover:border-violet/35 hover:-translate-y-0.5'
+                              : 'border-white/90 bg-white/80 hover:border-violet/35'
                           }`}
                         >
                           <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${active ? 'bg-primary text-white' : 'bg-lavender text-primary'}`}>
@@ -619,29 +692,36 @@ export function ProjectEnquirySection() {
               )}
             </motion.div>
           </AnimatePresence>
-
-          {step < 3 && (
-            <div className="mt-8 flex flex-wrap justify-between gap-3">
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={step === 0}
-                className="inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-medium text-muted disabled:opacity-40"
-              >
-                <ChevronLeft size={18} /> Previous
-              </button>
-              <MagneticButton onClick={goNext} className="!px-5 !py-2.5">
-                Next <ChevronRight size={18} />
-              </MagneticButton>
-            </div>
-          )}
-          {step === 3 && (
-            <button type="button" onClick={goPrev} className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-primary">
-              <ChevronLeft size={16} /> Edit answers
-            </button>
-          )}
         </div>
-      </ScrollReveal>
+
+        {step < 3 && (
+          <div
+            className="mt-8 flex flex-col-reverse gap-3 border-t border-lavender/80 pt-6 sm:flex-row sm:items-center sm:justify-between"
+            role="group"
+            aria-label="Form step navigation"
+          >
+            <button type="button" onClick={goPrev} disabled={step === 0} className={stepNavGhost}>
+              <ChevronLeft size={18} aria-hidden /> Previous
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                goNext()
+              }}
+              className={`${stepNavPrimary} w-full sm:w-auto`}
+            >
+              Next <ChevronRight size={18} aria-hidden />
+            </button>
+          </div>
+        )}
+        {step === 3 && (
+          <button type="button" onClick={goPrev} className="mt-6 inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-primary touch-manipulation">
+            <ChevronLeft size={16} aria-hidden /> Edit answers
+          </button>
+        )}
+      </div>
     </section>
   )
 }

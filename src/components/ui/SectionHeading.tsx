@@ -9,7 +9,7 @@ export function SectionHeading({ title, subtitle, align = 'center' }: Props) {
 
   return (
     <div className={`mb-12 max-w-2xl ${alignClass}`}>
-      <h2 className="font-display text-3xl font-bold tracking-tight text-dark md:text-4xl">
+      <h2 className="font-display text-2xl font-bold tracking-tight text-dark sm:text-3xl md:text-4xl">
         {title}
       </h2>
       {subtitle && (

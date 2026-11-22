@@ -10,7 +10,7 @@ const stats = [
 
 export function LiveDemosShowcase() {
   return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-white/80 bg-gradient-to-br from-white/90 via-lavender/40 to-soft-bg p-6 md:p-10">
+    <div className="relative min-w-0 overflow-hidden rounded-3xl border border-white/80 bg-gradient-to-br from-white/90 via-lavender/40 to-soft-bg p-4 sm:rounded-[2rem] sm:p-6 md:p-10">
       <div className="pointer-events-none absolute -right-16 top-0 h-64 w-64 rounded-full bg-primary/10 blur-2xl" />
 
       <div className="relative grid items-center gap-8 lg:grid-cols-[1.1fr_0.95fr_1fr]">

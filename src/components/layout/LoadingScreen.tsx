@@ -5,7 +5,7 @@ export function LoadingScreen() {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    const t = window.setTimeout(() => setDone(true), 1400)
+    const t = window.setTimeout(() => setDone(true), 900)
     return () => window.clearTimeout(t)
   }, [])
 
@@ -16,7 +16,7 @@ export function LoadingScreen() {
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-soft-bg"
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ delay: 1, duration: 0.4 }}
+      transition={{ delay: 0.45, duration: 0.35 }}
       style={{ pointerEvents: 'none' }}
     >
       <motion.div

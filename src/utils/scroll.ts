@@ -1,3 +1,5 @@
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
 export const sectionIds = {
   home: 'home',
   services: 'services',
@@ -13,5 +15,6 @@ export function scrollToSection(id: string) {
   const el = document.getElementById(id)
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.setTimeout(() => ScrollTrigger.refresh(), 450)
   }
 }

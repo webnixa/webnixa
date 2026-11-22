@@ -11,11 +11,11 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="relative scroll-mt-24 px-4 pb-14 pt-28 md:px-6 md:pb-20 md:pt-32 lg:pb-24"
+      className="relative scroll-mt-24 overflow-x-clip px-4 pb-14 pt-28 md:px-6 md:pb-20 md:pt-32 lg:pb-24"
     >
-      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6 xl:gap-10">
+      <div className="mx-auto grid min-w-0 max-w-6xl items-center gap-8 sm:gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6 xl:gap-10">
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
           className="z-10 max-w-xl lg:max-w-none"
@@ -23,7 +23,7 @@ export function HeroSection() {
           <span className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold tracking-wide text-muted">
             ✦ Build · Automate · Grow
           </span>
-          <h1 className="mt-5 font-display text-[2.125rem] font-bold leading-[1.08] tracking-tight text-dark sm:text-4xl md:text-5xl lg:text-[3.2rem]">
+          <h1 className="mt-5 font-display text-[1.75rem] font-bold leading-[1.12] tracking-tight text-dark min-[375px]:text-[2.125rem] sm:text-4xl md:text-5xl lg:text-[3.2rem]">
             Turn Your Ideas Into{' '}
             <span className="text-gradient">Powerful Digital Solutions</span>
           </h1>
@@ -41,10 +41,10 @@ export function HeroSection() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          initial={false}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-          className="relative"
+          className="relative min-w-0"
         >
           <div className="glass-strong absolute -inset-2 -z-10 rounded-[2.25rem] opacity-90 md:-inset-3" />
           <Suspense
