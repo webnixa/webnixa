@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import type { ServiceItem } from '../../data/services'
 import { MagneticButton } from '../ui/MagneticButton'
-import { scrollToSection } from '../../utils/scroll'
+import { scrollToEnquiryForm } from '../../utils/scroll'
 
 type Props = {
   service: ServiceItem | null
@@ -61,7 +61,7 @@ export function ServiceModal({ service, onClose }: Props) {
               <MagneticButton
                 onClick={() => {
                   onClose()
-                  scrollToSection('ideas')
+                  scrollToEnquiryForm()
                 }}
               >
                 Start a Project

@@ -7,7 +7,7 @@ import { SmoothScrollProvider } from './components/layout/SmoothScrollProvider'
 import { Navbar } from './components/nav/Navbar'
 import { DemosPage } from './pages/DemosPage'
 import { HomePage } from './pages/HomePage'
-import { scrollToSection } from './utils/scroll'
+import { scrollToEnquiryForm, scrollToSection } from './utils/scroll'
 
 /** Vite `base` is `/webnixa/` on GitHub Pages — required for client-side routes. */
 const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
@@ -18,7 +18,8 @@ function HashScroll() {
   useEffect(() => {
     if (pathname === '/' && hash) {
       const id = hash.replace('#', '')
-      const t = window.setTimeout(() => scrollToSection(id), 100)
+      const scroll = id === 'ideas' ? scrollToEnquiryForm : () => scrollToSection(id)
+      const t = window.setTimeout(scroll, 100)
       return () => window.clearTimeout(t)
     }
   }, [pathname, hash])

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { lazy, Suspense } from 'react'
-import { scrollToSection } from '../../utils/scroll'
+import { scrollToEnquiryForm, scrollToSection } from '../../utils/scroll'
 import { MagneticButton } from '../ui/MagneticButton'
 
 const HeroScene3D = lazy(() =>
@@ -31,7 +31,7 @@ export function HeroSection() {
             We design stunning websites, build innovative apps, and automate workflows with AI.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <MagneticButton onClick={() => scrollToSection('ideas')}>
+            <MagneticButton onClick={() => scrollToEnquiryForm()}>
               Share Your Idea
             </MagneticButton>
             <MagneticButton variant="ghost" onClick={() => scrollToSection('services')}>

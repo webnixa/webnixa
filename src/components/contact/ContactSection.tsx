@@ -6,7 +6,7 @@ import {
   WEBNIXA_WHATSAPP,
   WEBNIXA_WHATSAPP_DISPLAY,
 } from '../../lib/contact'
-import { scrollToSection } from '../../utils/scroll'
+import { scrollToEnquiryForm } from '../../utils/scroll'
 import { ScrollReveal } from '../ui/ScrollReveal'
 import { MagneticButton } from '../ui/MagneticButton'
 
@@ -67,7 +67,7 @@ export function ContactSection() {
               <MagneticButton
                 variant="ghost"
                 className="!border-white/40 !bg-white !text-primary hover:!bg-lavender"
-                onClick={() => scrollToSection('ideas')}
+                onClick={() => scrollToEnquiryForm()}
               >
                 Share Your Project
               </MagneticButton>

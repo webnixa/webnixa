@@ -3,7 +3,7 @@ import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useActiveSection } from '../../hooks/useActiveSection'
-import { scrollToSection } from '../../utils/scroll'
+import { scrollToEnquiryForm, scrollToSection } from '../../utils/scroll'
 import { MagneticButton } from '../ui/MagneticButton'
 
 const links = [
@@ -33,10 +33,17 @@ export function Navbar() {
         navigate('/demos')
         return
       }
+      if (id === 'ideas') {
+        scrollToEnquiryForm()
+        return
+      }
       scrollToSection(id)
     } else {
       navigate('/')
-      window.setTimeout(() => scrollToSection(id), 120)
+      window.setTimeout(() => {
+        if (id === 'ideas') scrollToEnquiryForm()
+        else scrollToSection(id)
+      }, 120)
     }
   }
 

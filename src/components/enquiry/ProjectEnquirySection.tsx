@@ -29,10 +29,12 @@ import {
   validateStepServiceFields,
   type FieldErrors,
 } from '../../lib/enquiry/validation'
+import { scrollElementIntoView } from '../../utils/scroll'
 import { ScrollReveal } from '../ui/ScrollReveal'
 import { MagneticButton } from '../ui/MagneticButton'
 
 const STEPS = ['Service', 'Your details', 'Requirements', 'Review'] as const
+const STEP_TRANSITION_MS = 380
 
 const services: {
   id: EnquiryService
@@ -393,7 +395,11 @@ export function ProjectEnquirySection() {
   const [copyOk, setCopyOk] = useState(false)
   const stepPanelRef = useRef<HTMLDivElement>(null)
   const stepTitleRef = useRef<HTMLHeadingElement>(null)
+  const formNavRef = useRef<HTMLDivElement>(null)
+  const nextBtnRef = useRef<HTMLButtonElement>(null)
+  const fullNameRef = useRef<HTMLInputElement>(null)
   const navLockRef = useRef(false)
+  const selectScrollRafRef = useRef<number | null>(null)
 
   const progress = ((step + 1) / STEPS.length) * 100
 
@@ -405,15 +411,33 @@ export function ProjectEnquirySection() {
     }, 400)
   }, [])
 
-  const selectService = useCallback((id: EnquiryService) => {
-    setData((s) => ({ ...s, service: id }))
-    setErrors((prev) => {
-      if (!prev.service) return prev
-      const next = { ...prev }
-      delete next.service
-      return next
-    })
+  const scrollToNextControl = useCallback(() => {
+    const target = nextBtnRef.current ?? formNavRef.current
+    scrollElementIntoView(target, { align: 'visible', behavior: 'smooth', extraOffset: 20 })
   }, [])
+
+  const selectService = useCallback(
+    (id: EnquiryService) => {
+      if (navLockRef.current) return
+      setData((s) => ({ ...s, service: id }))
+      setErrors((prev) => {
+        if (!prev.service) return prev
+        const next = { ...prev }
+        delete next.service
+        return next
+      })
+      if (selectScrollRafRef.current) {
+        cancelAnimationFrame(selectScrollRafRef.current)
+      }
+      selectScrollRafRef.current = requestAnimationFrame(() => {
+        selectScrollRafRef.current = requestAnimationFrame(() => {
+          selectScrollRafRef.current = null
+          scrollToNextControl()
+        })
+      })
+    },
+    [scrollToNextControl],
+  )
 
   const goNext = useCallback(() => {
     if (navLockRef.current) return
@@ -441,13 +465,32 @@ export function ProjectEnquirySection() {
   }, [releaseNavLock])
 
   useEffect(() => {
-    const panel = stepPanelRef.current
-    const title = stepTitleRef.current
-    if (title) {
-      title.focus({ preventScroll: true })
+    return () => {
+      if (selectScrollRafRef.current) cancelAnimationFrame(selectScrollRafRef.current)
     }
-    if (panel) {
-      panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    if (step !== 1) {
+      stepTitleRef.current?.focus({ preventScroll: true })
+      return
+    }
+
+    let focusTimer: number | undefined
+    const scrollTimer = window.setTimeout(() => {
+      scrollElementIntoView(fullNameRef.current, {
+        align: 'start',
+        behavior: 'smooth',
+        extraOffset: 24,
+      })
+      focusTimer = window.setTimeout(() => {
+        fullNameRef.current?.focus({ preventScroll: true })
+      }, 280)
+    }, STEP_TRANSITION_MS)
+
+    return () => {
+      window.clearTimeout(scrollTimer)
+      if (focusTimer) window.clearTimeout(focusTimer)
     }
   }, [step])
 
@@ -542,7 +585,7 @@ export function ProjectEnquirySection() {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               {step === 0 && (
-                <div>
+                <div id="enquiry-service-step">
                   <p className="mb-4 text-sm font-semibold text-dark">What would you like us to build for you?</p>
                   <div
                     className="grid gap-3 sm:grid-cols-2 sm:gap-4"
@@ -564,7 +607,7 @@ export function ProjectEnquirySection() {
                           }}
                           className={`card-premium enquiry-service-card rounded-3xl border p-4 text-left transition duration-300 touch-manipulation sm:p-5 ${
                             active
-                              ? 'border-primary bg-white shadow-[0_0_40px_rgba(108,25,255,0.18)]'
+                              ? 'border-primary bg-white shadow-[0_0_40px_rgba(108,25,255,0.18)] ring-2 ring-primary/35 ring-offset-2 ring-offset-white'
                               : 'border-white/90 bg-white/80 hover:border-violet/35'
                           }`}
                         >
@@ -584,7 +627,15 @@ export function ProjectEnquirySection() {
               {step === 1 && (
                 <div className="grid gap-4 md:grid-cols-2">
                   <Field label="Full Name" required error={errors.fullName}>
-                    <input className={inputClass} value={data.fullName} onChange={(e) => setData((s) => ({ ...s, fullName: e.target.value }))} />
+                    <input
+                      ref={fullNameRef}
+                      id="enquiry-full-name"
+                      name="fullName"
+                      autoComplete="name"
+                      className={inputClass}
+                      value={data.fullName}
+                      onChange={(e) => setData((s) => ({ ...s, fullName: e.target.value }))}
+                    />
                   </Field>
                   <Field label="Business / Brand Name">
                     <input className={inputClass} value={data.businessName} onChange={(e) => setData((s) => ({ ...s, businessName: e.target.value }))} />
@@ -696,7 +747,8 @@ export function ProjectEnquirySection() {
 
         {step < 3 && (
           <div
-            className="mt-8 flex flex-col-reverse gap-3 border-t border-lavender/80 pt-6 sm:flex-row sm:items-center sm:justify-between"
+            ref={formNavRef}
+            className="mt-8 flex scroll-mt-28 flex-col-reverse gap-3 border-t border-lavender/80 pt-6 sm:flex-row sm:items-center sm:justify-between"
             role="group"
             aria-label="Form step navigation"
           >
@@ -704,6 +756,7 @@ export function ProjectEnquirySection() {
               <ChevronLeft size={18} aria-hidden /> Previous
             </button>
             <button
+              ref={nextBtnRef}
               type="button"
               onClick={(e) => {
                 e.preventDefault()
